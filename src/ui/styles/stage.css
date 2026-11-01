@@ -474,3 +474,18 @@ html[data-wake='true'] .wheel-mark {
     font-size: 27px;
   }
 }
+
+@media (max-height: 480px) and (orientation: landscape) {
+  .hero {
+    padding: 12px 14px;
+  }
+  .lockup {
+    position: static;
+    float: right;
+    margin: 0 0 0 12px;
+    transform: none;
+  }
+  .hero__copy {
+    margin-top: 6px;
+  }
+}

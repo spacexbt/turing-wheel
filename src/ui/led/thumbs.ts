@@ -105,8 +105,8 @@ export function createThumbPool(reduced: boolean): ThumbPool {
   });
 
   const draw = (entry: Entry, now: number): void => {
-    const t = (now / 1000) * entry.rate;
-    entry.program.render(reduced ? Math.floor(t) : t, scratch);
+    const t = reduced ? 0 : (now / 1000) * entry.rate;
+    entry.program.render(t, scratch);
     entry.painter.paint(scratch);
     entry.drawnAt = now;
   };
@@ -127,6 +127,7 @@ export function createThumbPool(reduced: boolean): ThumbPool {
       return {
         setProgram(next) {
           entry.program = next;
+          if (reduced) draw(entry, performance.now());
         },
         remove() {
           observer.unobserve(canvas);
@@ -136,7 +137,7 @@ export function createThumbPool(reduced: boolean): ThumbPool {
       };
     },
     tick(now) {
-      if (entries.length === 0) return;
+      if (reduced || entries.length === 0) return;
       let drawn = 0;
       for (let seen = 0; seen < entries.length && drawn < PER_TICK; seen++) {
         cursor = (cursor + 1) % entries.length;

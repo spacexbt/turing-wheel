@@ -9,10 +9,14 @@ let openTip: (() => void) | null = null;
 /** The square question mark from the panel corners. Click or Enter opens it, Escape closes it. */
 export function helpTip(label: string, text: string): HTMLElement {
   const tip = h('div', { class: 'tip', role: 'note', hidden: true }, text);
+  const onPointerDown = (event: PointerEvent): void => {
+    if (event.target instanceof Node && !wrapper.contains(event.target)) close();
+  };
   const close = (): void => {
     tip.hidden = true;
     button.setAttribute('aria-expanded', 'false');
-    openTip = null;
+    document.removeEventListener('pointerdown', onPointerDown);
+    if (openTip === close) openTip = null;
   };
   const button = h(
     'button',
@@ -28,6 +32,7 @@ export function helpTip(label: string, text: string): HTMLElement {
         tip.hidden = false;
         button.setAttribute('aria-expanded', 'true');
         openTip = close;
+        document.addEventListener('pointerdown', onPointerDown);
       },
       onKeydown: (event: Event) => {
         if ((event as KeyboardEvent).key === 'Escape') close();
@@ -36,7 +41,8 @@ export function helpTip(label: string, text: string): HTMLElement {
     },
     '?',
   );
-  return h('span', { class: 'help-wrap' }, button, tip);
+  const wrapper = h('span', { class: 'help-wrap' }, button, tip);
+  return wrapper;
 }
 
 export function panelBar(

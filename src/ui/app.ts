@@ -81,7 +81,12 @@ function navButton(text: string, target: () => HTMLElement): HTMLElement {
     {
       class: 'nav__link',
       type: 'button',
-      onClick: () => target().scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' }),
+      onClick: () => {
+        const element = target();
+        element.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+        if (element.tabIndex < 0 && !element.hasAttribute('tabindex')) element.tabIndex = -1;
+        element.focus({ preventScroll: true });
+      },
     },
     text,
   );
@@ -546,12 +551,15 @@ export function mountApp(root: HTMLElement, sim: boolean, forceCanvas2d: boolean
     fitWall();
     crank.control.resize();
     const room = Math.min(PHONE_LOCKUP_MAX, hero.clientWidth - PHONE_HEADLINE_WIDTH);
-    lockup.fit(window.innerWidth < 720 ? room : hero.clientWidth - 40);
+    const width = window.innerWidth < 720 ? room : hero.clientWidth - 40;
+    const shortLandscape = window.matchMedia('(max-height: 480px) and (orientation: landscape)').matches;
+    lockup.fit(shortLandscape ? Math.min(width, window.innerHeight * 0.4) : width);
   };
   const sizes = new ResizeObserver(fitAll);
   sizes.observe(wallHost);
   sizes.observe(hero);
   sizes.observe(crank.hero);
+  window.addEventListener('resize', fitAll);
   fitAll();
 
   new IntersectionObserver(

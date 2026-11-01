@@ -8,7 +8,7 @@ export function h<K extends keyof HTMLElementTagNameMap>(
 ): HTMLElementTagNameMap[K] {
   const element = document.createElement(tag);
   for (const [key, value] of Object.entries(props ?? {})) {
-    if (value === null || value === undefined || value === false) continue;
+    if (value === null || value === undefined || (value === false && key !== 'spellcheck')) continue;
     if (key.startsWith('on') && typeof value === 'function') {
       element.addEventListener(key.slice(2).toLowerCase(), value);
     } else if (key === 'class') {
